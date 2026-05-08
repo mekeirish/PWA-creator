@@ -1,25 +1,16 @@
-const CACHE_NAME = 'pwa-studio-v1';
-const assetsToCache = [
-    './',
-    './index.html',
-    './manifest.json',
-    './icon.png'
-];
+const CACHE_NAME = 'pwa-studio-v2'; // Changé en v2
+const assetsToCache = ['./', './index.html', './manifest.json', './icon.png'];
 
-// Installation : Mise en cache des fichiers
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(assetsToCache);
-        })
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(assetsToCache))
     );
+    self.skipWaiting(); // Force la mise à jour immédiate
 });
 
-// Fetch : Servir les fichiers depuis le cache si hors-ligne
 self.addEventListener('fetch', (event) => {
+    // Stratégie : Essayer internet d'abord, sinon cache
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        })
+        fetch(event.request).catch(() => caches.match(event.request))
     );
 });
